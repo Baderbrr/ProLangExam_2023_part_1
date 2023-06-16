@@ -1,0 +1,199 @@
+#For Grade 3:
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using University.Models;
+
+namespace University.Controllers
+{
+    [Route("Teacher")]
+    public class TeacherController : Controller
+    {
+        private readonly UniversityDbContext _dbContext;
+
+        public TeacherController(UniversityDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        // GET /Teacher/All
+        [HttpGet("All")]
+        public IActionResult GetAllTeachers()
+        {
+            List<Teacher> teachers = _dbContext.Teachers.ToList();
+            return Ok(teachers);
+        }
+
+        // GET /Teacher/{id}
+        [HttpGet("{id}")]
+        public IActionResult GetTeacherById(int id)
+        {
+            Teacher teacher = _dbContext.Teachers.FirstOrDefault(t => t.Id == id);
+            
+            if (teacher == null)
+                return NotFound();
+            
+            return Ok(teacher);
+        }
+    }
+}
+
+#For Grade 3:
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using University.Models;
+
+namespace University.Controllers
+{
+    [Route("Teacher")]
+    public class TeacherController : Controller
+    {
+        private readonly UniversityDbContext _dbContext;
+
+        public TeacherController(UniversityDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        // GET /Teacher/All
+        [HttpGet("All")]
+        public IActionResult GetAllTeachers()
+        {
+            List<Teacher> teachers = _dbContext.Teachers.ToList();
+            return Ok(teachers);
+        }
+
+        // GET /Teacher/{id}
+        [HttpGet("{id}")]
+        public IActionResult GetTeacherById(int id)
+        {
+            Teacher teacher = _dbContext.Teachers.FirstOrDefault(t => t.Id == id);
+
+            if (teacher == null)
+                return NotFound();
+
+            return Ok(teacher);
+        }
+
+        // GET /Teacher/WithSkills/{id}
+        [HttpGet("WithSkills/{id}")]
+        public IActionResult GetTeacherWithSkills(int id)
+        {
+            Teacher teacher = _dbContext.Teachers.FirstOrDefault(t => t.Id == id);
+
+            if (teacher == null)
+                return NotFound();
+
+            List<Skill> skills = _dbContext.TeacherSkills
+                .Where(ts => ts.TeacherId == id)
+                .Select(ts => ts.Skill)
+                .ToList();
+
+            var teacherWithSkills = new
+            {
+                Teacher = teacher,
+                Skills = skills
+            };
+
+            return Ok(teacherWithSkills);
+        }
+    }
+}
+
+#For Grade 4:
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using University.Models;
+
+namespace University.Controllers
+{
+    [Route("Teacher")]
+    public class TeacherController : Controller
+    {
+        private readonly UniversityDbContext _dbContext;
+
+        public TeacherController(UniversityDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        // GET /Teacher/All
+        [HttpGet("All")]
+        public IActionResult GetAllTeachers()
+        {
+            var teachers = _dbContext.Teachers.ToList();
+            return Ok(teachers);
+        }
+
+        // GET /Teacher/{id}
+        [HttpGet("{id}")]
+        public IActionResult GetTeacherById(int id)
+        {
+            var teacher = _dbContext.Teachers.FirstOrDefault(t => t.Id == id);
+
+            if (teacher == null)
+                return NotFound();
+
+            return Ok(teacher);
+        }
+
+        // GET /Teacher/WithSkills/{id}
+        [HttpGet("WithSkills/{id}")]
+        public IActionResult GetTeacherWithSkills(int id)
+        {
+            var teacher = _dbContext.Teachers.FirstOrDefault(t => t.Id == id);
+
+            if (teacher == null)
+                return NotFound();
+
+            var skills = _dbContext.TeacherSkills
+                .Where(ts => ts.TeacherId == id)
+                .Select(ts => ts.Skill)
+                .ToList();
+
+            var teacherWithSkills = new
+            {
+                Teacher = teacher,
+                Skills = skills
+            };
+
+            return Ok(teacherWithSkills);
+        }
+
+        // POST /Teacher/Create
+        [HttpPost("Create")]
+        public IActionResult CreateTeacher([FromBody] TeacherDto teacherDto)
+        {
+            if (teacherDto == null)
+                return BadRequest("Teacher data is missing.");
+
+            // Check if the teacher already exists
+            var existingTeacher = _dbContext.Teachers.FirstOrDefault(t => t.Name == teacherDto.Name);
+            if (existingTeacher != null)
+                return Conflict("Teacher with the same name already exists.");
+
+            var teacher = new Teacher
+            {
+                Name = teacherDto.Name,
+                Skills = teacherDto.Skills.Select(skillName =>
+                {
+                    // Check if the skill already exists
+                    var existingSkill = _dbContext.Skills.FirstOrDefault(s => s.Name == skillName);
+                    if (existingSkill != null)
+                        return existingSkill;
+
+                    // Create a new skill if it doesn't exist
+                    var newSkill = new Skill { Name = skillName };
+                    _dbContext.Skills.Add(newSkill);
+                    return newSkill;
+                }).ToList()
+            };
+
+            _dbContext.Teachers.Add(teacher);
+            _dbContext.SaveChanges();
+
+            return Ok(teacher);
+        }
+    }
+}
