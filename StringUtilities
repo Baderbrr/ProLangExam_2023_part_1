@@ -1,0 +1,72 @@
+#For greade 3:
+public class StringUtilities {
+    public static int ToWords(String input) {
+        String[] words = input.split(" ");
+        Set<String> uniqueWords = new HashSet<>();
+        for (String word : words) {
+            uniqueWords.add(word.toLowerCase());
+        }
+        return uniqueWords.size();
+    }
+}
+#For greade 4:
+public class StringUtilities {
+    public static String ToSentence(String input) {
+        String lowercase = input.toLowerCase();
+        String firstChar = lowercase.substring(0, 1).toUpperCase();
+        String restOfSentence = lowercase.substring(1);
+        String sentence = firstChar + restOfSentence;
+        if (!sentence.endsWith(".")) {
+            sentence += ".";
+        }
+        return sentence;
+    }
+}
+#For Grade 5:
+public class StringUtilities {
+    public static String ToPascalCase(String input) {
+        String[] words = input.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String word : words) {
+            sb.append(Character.toUpperCase(word.charAt(0)))
+                    .append(word.substring(1).toLowerCase());
+        }
+        return sb.toString();
+    }
+}
+#With this extension method we can use
+String input = "the LorD OF thE Rings";
+String pascalCase = input.ToPascalCase();
+System.out.println(pascalCase);  // Output: "TheLordOfTheRings"
+
+import java.util.Iterator;
+
+
+public class StringUtilities {
+    public static String JoinWith(Iterable<String> strings, String separator) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> iterator = strings.iterator();
+        while (iterator.hasNext()) {
+            sb.append(iterator.next());
+            if (iterator.hasNext()) {
+                sb.append(separator);
+            }
+        }
+        return sb.toString();
+    }
+}
+#With this extension method, we can use 
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> strings = new ArrayList<>();
+        strings.add("First");
+        strings.add("Second");
+        strings.add("Third");
+
+        String joined = StringUtilities.JoinWith(strings, ", ");
+        System.out.println(joined);  // Output: "First, Second, Third"
+    }
+}
